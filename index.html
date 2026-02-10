@@ -1,73 +1,48 @@
-import React, { useState } from 'react';
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Simple Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-gray-100">
 
-// 1. ข้อมูลสินค้าจำลอง
-const PRODUCTS = [
-  { id: 1, name: "Premium Watch", price: 2500, img: "https://via.placeholder.com/150" },
-  { id: 2, name: "Wireless Headphone", price: 3900, img: "https://via.placeholder.com/150" },
-  { id: 3, name: "Mechanical Keyboard", price: 1800, img: "https://via.placeholder.com/150" },
-];
-
-export default function FullStore() {
-  // --- State Management ---
-  const [cart, setCart] = useState([]);
-  const [user, setUser] = useState(null); // เก็บข้อมูลสมาชิก
-  const [view, setView] = useState('home'); // ควบคุมหน้า (home, cart, checkout)
-
-  // --- Functions ---
-  const addToCart = (product) => {
-    setCart([...cart, { ...product, cartId: Math.random() }]);
-    alert("เพิ่มลงตะกร้าแล้ว!");
-  };
-
-  const handleLogin = () => {
-    setUser({ name: "Somchai", email: "somchai@email.com" });
-    alert("เข้าสู่ระบบสำเร็จ!");
-  };
-
-  const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-
-  return (
-    <div className="font-sans bg-gray-100 min-h-screen">
-      {/* 1. ระบบจัดการสมาชิก (Navbar) */}
-      <nav className="bg-white p-4 shadow-sm flex justify-between items-center sticky top-0">
-        <h1 className="text-xl font-bold cursor-pointer" onClick={() => setView('home')}>MyStore</h1>
-        <div className="flex gap-4 items-center">
-          {user ? (
-            <span className="text-sm text-green-600">สวัสดี, {user.name}</span>
-          ) : (
-            <button onClick={handleLogin} className="text-blue-600">เข้าสู่ระบบ</button>
-          )}
-          <button onClick={() => setView('cart')} className="bg-gray-800 text-white px-4 py-2 rounded">
-            ตะกร้า ({cart.length})
-          </button>
-        </div>
-      </nav>
-
-      <div className="max-w-4xl mx-auto p-6">
-        {/* 2. การแสดงผลหน้าหลัก (Product Grid) */}
-        {view === 'home' && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6">สินค้าทั้งหมด</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              {PRODUCTS.map(pd => (
-                <div key={pd.id} className="bg-white p-4 rounded shadow">
-                  <img src={pd.img} alt={pd.name} className="w-full rounded" />
-                  <h3 className="mt-2 font-semibold">{pd.name}</h3>
-                  <p className="text-blue-500">{pd.price} บาท</p>
-                  <button 
-                    onClick={() => addToCart(pd)}
-                    className="w-full mt-2 bg-blue-600 text-white py-1 rounded hover:bg-blue-700"
-                  >
-                    เพิ่มลงตะกร้า
-                  </button>
-                </div>
-              ))}
+<div id="app">
+    <nav class="bg-white shadow-md p-4 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <h1 @click="view = 'home'" class="text-2xl font-bold text-blue-600 cursor-pointer">🛒 ME-Store</h1>
+            <div class="flex items-center gap-4">
+                <span v-if="user" class="text-sm text-gray-600">สวัสดี, {{ user.name }}</span>
+                <button v-else @click="login" class="text-blue-500 hover:underline">เข้าสู่ระบบ</button>
+                
+                <button @click="view = 'cart'" class="bg-gray-800 text-white px-4 py-2 rounded-lg relative">
+                    ตะกร้า
+                    <span v-if="cart.length > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2">
+                        {{ cart.length }}
+                    </span>
+                </button>
             </div>
-          </div>
-        )}
+        </div>
+    </nav>
 
-        {/* 3. ระบบสั่งซื้อ (Cart View) */}
-        {view === 'cart' && (
-          <div className="bg-white p-6 rounded shadow">
-            <h2 className="text-2xl font-bold mb-4">ตะกร้าของคุณ</h2>
-            {cart.length ===
+    <div class="max-w-5xl mx-auto p-6">
+        
+        <div v-if="view === 'home'">
+            <h2 class="text-2xl font-bold mb-6">สินค้าแนะนำ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div v-for="product in products" :key="product.id" class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
+                    <img :src="product.img" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="font-bold text-lg">{{ product.name }}</h3>
+                    <p class="text-blue-600 font-bold text-xl my-2">{{ product.price.toLocaleString() }} บาท</p>
+                    <button @click="addToCart(product)" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                        เพิ่มลงตะกร้า
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="view === 'cart'" class="bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6">ตะกร้าสินค้าของคุณ</h2>
+            <div v-if="cart.length === 0" class="text-
