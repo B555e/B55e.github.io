@@ -45,4 +45,104 @@
 
         <div v-if="view === 'cart'" class="bg-white p-8 rounded-xl shadow-lg">
             <h2 class="text-2xl font-bold mb-6">ตะกร้าสินค้าของคุณ</h2>
-            <div v-if="cart.length === 0" class="text-
+            <div v-if="cart.length === 0" class="text-center py-10 text-gray-500">
+                ไม่มีสินค้าในตะกร้า <button @click="view = 'home'" class="text-blue-500">ไปช้อปปิ้งกัน!</button>
+            </div>
+            <div v-else>
+                <div v-for="(item, index) in cart" :key="index" class="flex justify-between items-center border-b py-4">
+                    <div class="flex items-center gap-4">
+                        <img :src="item.img" class="w-16 h-16 rounded">
+                        <span class="font-medium">{{ item.name }}</span>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <span>{{ item.price.toLocaleString() }} บาท</span>
+                        <button @click="removeFromCart(index)" class="text-red-500">ลบ</button>
+                    </div>
+                </div>
+                <div class="mt-8 text-right">
+                    <p class="text-xl">ยอดรวมทั้งหมด: <span class="font-bold text-2xl text-blue-600">{{ totalPrice.toLocaleString() }} บาท</span></p>
+                    <button @click="view = 'checkout'" class="mt-4 bg-green-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-600">
+                        ดำเนินการชำระเงิน
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="view === 'checkout'" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6">ที่อยู่จัดส่งและชำระเงิน</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm mb-1">ชื่อ-นามสกุล</label>
+                    <input type="text" class="w-full border rounded-lg p-2" placeholder="สมชาย มุ่งมั่น">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">ที่อยู่</label>
+                    <textarea class="w-full border rounded-lg p-2" rows="3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">ช่องทางชำระเงิน</label>
+                    <select class="w-full border rounded-lg p-2">
+                        <option>โอนเงินผ่านธนาคาร (แนบสลิป)</option>
+                        <option>PromptPay</option>
+                        <option>บัตรเครดิต</option>
+                    </select>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="flex justify-between"><span>ยอดที่ต้องชำระ:</span> <strong>{{ totalPrice.toLocaleString() }} บาท</strong></p>
+                </div>
+                <button @click="confirmOrder" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">
+                    ยืนยันคำสั่งซื้อ
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue
+
+    createApp({
+        data() {
+            return {
+                view: 'home',
+                user: null,
+                products: [
+                    { id: 1, name: "หูฟังไร้สาย", price: 1200, img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500" },
+                    { id: 2, name: "นาฬิกาสมาร์ทวอทช์", price: 2500, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" },
+                    { id: 3, name: "กล้องฟิล์ม Retro", price: 4900, img: "https://images.unsplash.com/photo-1526170315870-ef689734821d?w=500" }
+                ],
+                cart: []
+            }
+        },
+        computed: {
+            totalPrice() {
+                return this.cart.reduce((sum, item) => sum + item.price, 0)
+            }
+        },
+        methods: {
+            addToCart(product) {
+                this.cart.push({...product});
+            },
+            removeFromCart(index) {
+                this.cart.splice(index, 1);
+            },
+            login() {
+                this.user = { name: "คุณลูกค้าใจดี", email: "customer@example.com" };
+                alert("เข้าสู่ระบบเรียบร้อย!");
+            },
+            confirmOrder() {
+                if (!this.user) {
+                    alert("กรุณาเข้าสู่ระบบก่อนชำระเงินครับ");
+                    return;
+                }
+                alert("ขอบคุณสำหรับการสั่งซื้อ! ระบบได้รับข้อมูลแล้ว");
+                this.cart = [];
+                this.view = 'home';
+            }
+        }
+    }).mount('#app')
+</script>
+
+</body>
+</html>
